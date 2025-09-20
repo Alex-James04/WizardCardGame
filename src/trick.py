@@ -51,8 +51,11 @@ class Trick:
     def getCardsPlayed(self) -> CardSet:
         return self._cards_played
     
+    def _updateCardsPlayed(self, card:Card) -> None:
+        self._cards_played.addCard(card)
+    
     def playMove(self, move:Move) -> None:
         self._updateLeadSuit(move.getCard())
         self._updateWinningMove(move)
         self._updateMoveLog(move)
-        self._cards_played.addCard(move.getCard())
+        self._updateCardsPlayed(move.getCard())

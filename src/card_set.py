@@ -1,4 +1,5 @@
 from card import Card
+from random import shuffle
 
 class CardSet:
 
@@ -30,6 +31,11 @@ class CardSet:
         for card in cards: 
             if not self.removeCard(card): allCardsRemoved = False
         return allCardsRemoved
+    
+    def shuffleCards(self) -> list:
+        card_list = list(self._cards)
+        shuffle(card_list)
+        return card_list
 
     def clearSet(self) -> None:
         self._cards = set()
