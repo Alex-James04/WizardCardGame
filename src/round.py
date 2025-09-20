@@ -1,11 +1,14 @@
 from card import Card
 from card_set import CardSet
 from player import Player
+from game import Game
 
 class Round:
 
-    def __init__(self, unshuffled_deck:CardSet, dealer:Player, total_tricks_avilable:int) -> None:
-        self._shuffled_deck = unshuffled_deck.shuffleCards()
+    def __init__(self, game:Game, shuffled_deck:list, dealer:Player, total_tricks_avilable:int) -> None:
+        self._game = game
+        self._shuffled_deck = shuffled_deck
+        self._deck_top_pointer = len(self._shuffled_deck)-1
         self._dealer = dealer
         self._total_tricks_available = total_tricks_avilable
         self._total_tricks_bid = 0
@@ -14,8 +17,14 @@ class Round:
         self._player_bids = {}
         self._trump_card = Card()
 
+    def getGameInstance(self) -> Game:
+        return self._game
+
     def _getShuffledDeck(self) -> list:
         return self._shuffled_deck
+    
+    def getDeckTopPointer(self) -> int:
+        return self._deck_top_pointer
     
     def getDealer(self) -> Player:
         return self._dealer
@@ -57,13 +66,24 @@ class Round:
         return self._trump_card
     
     def _dealCards(self) -> None:
-        pass
+        for player in self._game.getPlayers():
+            if player not in self._player_hands.keys(): self._player_hands[player] = CardSet()
+            for trick_index in range(self._total_tricks_available):
+                self._player_hands[player].addCard(self._shuffled_deck[self._deck_top_pointer])
+                self._deck_top_pointer -= 1
+        self._trump_card = self._shuffled_deck[self._deck_top_pointer]
+        self._deck_top_pointer -= 1
     
     def _playBiddingPhase(self) -> None:
-        self._updatePlayerBids()
+        ### looped gameplay of taking player's bids and setting them using repeated calls to setPlayerBid
+        ### will pass a GameState object to the player every time they make a bid
+
         self._updateTotalTricksBid()
 
     def _playGamePhase(self) -> None:
+        ### looped gameplay of tricks that calls updateCompletedTricks and updatePlayerBids after every trick completed
+        ### will pass a GameState object to the player every time they make a move
+
         pass
 
     def playRound(self) -> None:

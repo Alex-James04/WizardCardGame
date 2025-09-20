@@ -1,6 +1,7 @@
-class Wizard():
-    pass
+from game import Game
 
+class Wizard():
+    game = Game([])
 
 
 if __name__ == "__main__":
