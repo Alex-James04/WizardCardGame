@@ -90,7 +90,7 @@ class Round:
             self._completed_tricks.append(trick)
             trick_winner = trick.getWinningMove().getPlayer()
             self._player_bids[trick_winner].incrementMadeBids()
-            self._game.setPlayerPointer(self._game.getPlayerIndex(trick_winner) - 1)
+            self._game.setPlayerPointer(self._game.findPlayer(trick_winner) - 1)
 
     def playRound(self) -> None:
         self._dealCards()
