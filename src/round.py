@@ -1,7 +1,11 @@
+from card_attributes import Suit, Value
 from card import Card
 from card_set import CardSet
 from player import Player
 from game import Game
+from trick import Trick
+from move import Move
+from bid import Bid
 
 class Round:
 
@@ -13,7 +17,7 @@ class Round:
         self._total_tricks_available = total_tricks_avilable
         self._total_tricks_bid = 0
         self._player_hands = {}
-        self._completed_tricks = {}
+        self._completed_tricks = []
         self._player_bids = {}
         self._trump_card = Card()
 
@@ -35,9 +39,6 @@ class Round:
     def getTotalTricksBid(self) -> int:
         return self._total_tricks_bid
     
-    def _updateTotalTricksBid(self) -> None:
-        pass
-    
     def _getPlayerHands(self) -> dict:
         return self._player_hands
     
@@ -47,20 +48,14 @@ class Round:
     def _removeCardFromHand(self, player:Player, card:Card) -> None:
         self._player_hands[player].removeCard(card)
 
-    def getCompletedTricks(self) -> dict:
+    def getCompletedTricks(self) -> list:
         return self._completed_tricks
-    
-    def _updateCompletedTricks(self) -> None:
-        pass
 
     def getPlayerBids(self) -> dict:
         return self._player_bids
     
     def _setPlayerBid(self, player:Player, bid:int) -> None:
         self._player_bids[player] = bid
-
-    def _updatePlayerBids(self) -> None:
-        pass
 
     def getTrumpCard(self) -> Card:
         return self._trump_card
@@ -73,18 +68,29 @@ class Round:
                 self._deck_top_pointer -= 1
         self._trump_card = self._shuffled_deck[self._deck_top_pointer]
         self._deck_top_pointer -= 1
+        if self._trump_card.isWizard(): self._trump_card = Card(self._dealer.setTrumpSuit(), Value.NULL)
     
     def _playBiddingPhase(self) -> None:
-        ### looped gameplay of taking player's bids and setting them using repeated calls to setPlayerBid
-        ### will pass a GameState object to the player every time they make a bid
-
-        self._updateTotalTricksBid()
+        submitted_bids = 0
+        while submitted_bids < len(self._game.getPlayers()):
+            current_player = self._game.getNextPlayer()
+            current_bid = current_player.makeBid()
+            self._player_bids[current_player] = Bid(current_bid)
+            self._total_tricks_bid += current_bid
+            submitted_bids += 1
 
     def _playGamePhase(self) -> None:
-        ### looped gameplay of tricks that calls updateCompletedTricks and updatePlayerBids after every trick completed
-        ### will pass a GameState object to the player every time they make a move
-
-        pass
+        for current_trick in range(self._total_tricks_available):
+            trick = Trick(self._trump_card.getSuit())
+            played_cards = 0
+            while played_cards < len(self._game.getPlayers()):
+                current_player = self._game.getNextPlayer()
+                trick.playMove(Move(current_player.playCardFromHand(), current_player))
+                played_cards += 1
+            self._completed_tricks.append(trick)
+            trick_winner = trick.getWinningMove().getPlayer()
+            self._player_bids[trick_winner].incrementMadeBids()
+            self._game.setPlayerPointer(self._game.getPlayerIndex(trick_winner) - 1)
 
     def playRound(self) -> None:
         self._dealCards()
