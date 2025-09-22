@@ -78,6 +78,11 @@ class Game:
             self._completed_rounds.append(round)
             self._current_round += 1
 
-    def playGame(self) -> None:
+    def playGame(self) -> int:
         self._generateDeck()
         self._playRounds()
+        final_scores = self._player_scores.items()
+        winner = (Player(), 0)
+        for player, score in final_scores:
+            if score > winner[1]: winner = (player, score)
+        return self.findPlayer(winner[0])
