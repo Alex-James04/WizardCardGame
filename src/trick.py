@@ -8,7 +8,7 @@ class Trick:
     def __init__(self, trump_suit:Suit=Suit.NULL) -> None:
         self._trump_suit = trump_suit
         self._lead_suit = Suit.NULL
-        self._move_log = {}
+        self._move_log = []
         self._winning_move = Move()
         self._cards_played = CardSet()
 
@@ -23,12 +23,11 @@ class Trick:
             if not self._cards_played.isEmpty() and self._move_log[0].getCard().isWizard(): return
             self._lead_suit = card.getSuit()
 
-    def getMoveLog(self) -> dict:
+    def getMoveLog(self) -> list:
         return self._move_log
     
     def _updateMoveLog(self, move: Move) -> None:
-        if len(self._move_log) == 0: self._move_log[0] = move
-        else: self._move_log[max(self._move_log.keys()) + 1] = move
+        self._move_log.append(move)
 
     def getWinningMove(self) -> Move:
         return self._winning_move

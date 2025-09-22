@@ -10,10 +10,10 @@ class Game:
         self._full_deck = CardSet()
         self._players = players
         self._player_scores = {}
-        self._player_pointer = 0
+        self._dealer_pointer = -1
         self._completed_rounds = []
         self._total_rounds = 60//len(players)
-        self._current_round = 0
+        self._current_round = 1
 
     def getFullDeck(self) -> CardSet:
         return self._full_deck
@@ -37,41 +37,46 @@ class Game:
     def getPlayerScores(self) -> dict:
         return self._player_scores
     
-    def updatePlayerScores(self, round) -> None:
+    def _updatePlayerScores(self, round) -> None:
         round_bids = round.getPlayerBids()
         for player in self._players:
             current_player_bid = round_bids[player]
             if current_player_bid.isMet(): self._player_scores[player] += (20 + (10*current_player_bid.getMade()))
             else: self._player_scores[player] -= abs(10*(current_player_bid.getMade() - current_player_bid.getGoal()))
 
-    def getNextPlayer(self) -> Player:
-        if self._player_pointer < len(self._players) - 1: self._player_pointer += 1
-        else: self._player_pointer = 0
-        return self._players[self._player_pointer]
+    def getDealer(self) -> Player:
+        return self._players[self._dealer_pointer]
+
+    def _setDealerPointer(self, index:int) -> None:
+        self._dealer_pointer = index
     
-    def setPlayerPointer(self, pointer:int) -> None:
-        self._player_pointer = pointer
+    def _incrementDealerPointer(self) -> None:
+        self._dealer_pointer += 1
+
+    def _getNextDealer(self) -> Player:
+        if self._dealer_pointer == len(self._players) - 1: self._setDealerPointer(0)
+        else: self._incrementDealerPointer()
+        return self._players[self._players.index(self._dealer_pointer)]
 
     def getCompletedRounds(self) -> list:
         return self._completed_rounds
-    
-    def _updateCompletedRounds(self, round:Round) -> None:
-        self._completed_rounds.append(round)
 
     def getTotalRounds(self) -> int:
         return self._total_rounds
     
     def getCurrentRound(self) -> int:
         return self._current_round
-    
-    def updateCurrentRound(self) -> None:
-        self._current_round += 1
 
     def _playRounds(self) -> None:
-        pass
 
-        # looped gameplay of rounds that calls updatePlayerScores, updateCompletedRounds, and updateCurrentRound for every round in the game
-        # the instance of the game "self" is passed to every round in updateCompletedRounds' round instances (as well as a shuffled version of the full deck) so players can access game-level attributes
+        for game_round in range(self._total_rounds):
+
+            round = Round(self._full_deck.shuffleCards(), self._getNextDealer(), self._current_round)
+            round.playRound(self)
+
+            self._updatePlayerScores(round)
+            self._completed_rounds.append(round)
+            self._current_round += 1
 
     def playGame(self) -> None:
         self._generateDeck()
