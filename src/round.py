@@ -81,8 +81,11 @@ class Round:
             for trick_index in range(self._total_tricks_available):
                 self._addCardToHand(player_index, self._shuffled_deck[self._deck_top_pointer])
                 self._deck_top_pointer -= 1
-        self._trump_card = self._shuffled_deck[self._deck_top_pointer]
-        self._deck_top_pointer -= 1
+        if self._deck_top_pointer < 0:
+            self._trump_card = Card()
+        else:
+            self._trump_card = self._shuffled_deck[self._deck_top_pointer]
+            self._deck_top_pointer -= 1
         current_state.setRoundAttributes(self._current_player_index, self._total_tricks_available, self._total_tricks_bid, self._trick_log, self._player_bids, self._trump_card, self._getPlayerHand(self._current_player_index))
         if self._trump_card.isWizard(): self._trump_card = Card(self._players[self._dealer_index].setTrumpSuit(current_state), Value.NULL)
     
