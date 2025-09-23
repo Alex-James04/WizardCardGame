@@ -10,7 +10,7 @@ class Trick:
         self._lead_suit = Suit.NULL
         self._move_log = []
         self._winning_move = Move()
-        self._cards_played = CardSet()
+        self._cards_played = CardSet(set())
 
     def getTrumpSuit(self) -> Suit:
         return self._trump_suit
@@ -25,9 +25,6 @@ class Trick:
 
     def getMoveLog(self) -> list:
         return self._move_log
-    
-    def _updateMoveLog(self, move: Move) -> None:
-        self._move_log.append(move)
 
     def getWinningMove(self) -> Move:
         return self._winning_move
@@ -50,11 +47,9 @@ class Trick:
     def getCardsPlayed(self) -> CardSet:
         return self._cards_played
     
-    def _updateCardsPlayed(self, card:Card) -> None:
-        self._cards_played.addCard(card)
-    
-    def playMove(self, move:Move) -> None:
-        self._updateLeadSuit(move.getCard())
+    def playMove(self, player_index:int, card:Card) -> None:
+        move = Move(player_index, card)
+        self._updateLeadSuit(card)
         self._updateWinningMove(move)
-        self._updateMoveLog(move)
-        self._updateCardsPlayed(move.getCard())
+        self._cards_played.addCard(card)
+        self._move_log.append(move)

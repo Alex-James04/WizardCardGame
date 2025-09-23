@@ -8,8 +8,8 @@ class Wizard():
     player4 = Player()
     player_list = [player1, player2, player3, player4]
     game = Game(player_list)
-    winner_index = game.playGame()
-    winner = player_list[winner_index]
+    final_scores = game.playGame()
+    print(final_scores)
 
 if __name__ == "__main__":
     wizard = Wizard()

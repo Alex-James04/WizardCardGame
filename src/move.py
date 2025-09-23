@@ -1,14 +1,13 @@
 from card import Card
-from player import Player
 
 class Move:
 
-    def __init__(self, player:Player=Player(), card:Card=Card()) -> None:
-        self._player = player
+    def __init__(self, player_index:int=-1, card:Card=Card()) -> None:
+        self._player_index = player_index
         self._card = card
 
-    def getPlayer(self) -> Player:
-        return self._player
+    def getPlayerIndex(self) -> int:
+        return self._player_index
     
     def getCard(self) -> Card:
         return self._card

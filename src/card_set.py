@@ -3,30 +3,30 @@ from random import shuffle
 
 class CardSet:
 
-    def __init__(self, cards:set=set()) -> None:
+    def __init__(self, cards:set) -> None:
         self._cards = cards
 
     def getCards(self) -> set:
         return self._cards
     
-    def setCards(self, cards:set=set()) -> None:
+    def setCards(self, cards:set) -> None:
         self._cards = cards
     
     def getSize(self):
         return len(self._cards)
     
-    def addCard(self, card:Card=Card()) -> None:
+    def addCard(self, card:Card) -> None:
         self._cards.add(card)
 
-    def addCards(self, cards:set=set()) -> None:
+    def addCards(self, cards:set) -> None:
         for card in cards: self.addCard(card)
 
-    def removeCard(self, card:Card=Card()) -> bool:
+    def removeCard(self, card:Card) -> bool:
         if card not in self._cards: return False
         self._cards.remove(card)
         return True
     
-    def removeCards(self, cards:set=set()) -> bool:
+    def removeCards(self, cards:set) -> bool:
         allCardsRemoved = True
         for card in cards: 
             if not self.removeCard(card): allCardsRemoved = False
@@ -44,4 +44,4 @@ class CardSet:
         return card in self._cards
 
     def isEmpty(self) -> bool:
-        return not bool(self._cards)
+        return self._cards == set()

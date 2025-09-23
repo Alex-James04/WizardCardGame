@@ -1,23 +1,23 @@
 from card_attributes import Suit, Value
 from card import Card
 from card_set import CardSet
-from player import Player
 from round import Round
+from game_state import GameState
 
 class Game:
     
     def __init__(self, players:list) -> None:
-        self._full_deck = CardSet()
         self._players = players
-        self._player_scores = {}
-        self._dealer_pointer = -1
-        self._completed_rounds = []
+        self._full_deck = CardSet(set())
+        self._dealer_index = 0
+        self._player_scores = []
+        self._round_log = []
         self._total_rounds = 60//len(players)
         self._current_round = 1
 
-    def getFullDeck(self) -> CardSet:
-        return self._full_deck
-
+    def getPlayers(self) -> list:
+        return self._players
+    
     def _generateDeck(self) -> None:
         for suit in Suit:
             if suit == Suit.NULL:
@@ -28,38 +28,38 @@ class Game:
             for value in Value:
                 if value != Value.NULL and value != Value.WIZARD and value != Value.JESTER: self._full_deck.addCard(Card(suit, value))
 
-    def getPlayers(self) -> list:
-        return self._players
+    def getFullDeck(self) -> CardSet:
+        return self._full_deck
 
-    def findPlayer(self, Player) -> int:
-        return self._players.index(Player)
-
-    def getPlayerScores(self) -> dict:
+    def getPlayerScores(self) -> list:
         return self._player_scores
+    
+    def getPlayerScore(self, player_index:int) -> int:
+        return self._player_scores[player_index]
     
     def _updatePlayerScores(self, round) -> None:
         round_bids = round.getPlayerBids()
-        for player in self._players:
-            current_player_bid = round_bids[player]
-            if current_player_bid.isMet(): self._player_scores[player] += (20 + (10*current_player_bid.getMade()))
-            else: self._player_scores[player] -= abs(10*(current_player_bid.getMade() - current_player_bid.getGoal()))
+        for player_index in range(len(self._players)):
+            current_player_bid = round_bids[player_index]
+            if len(self._player_scores) < len(self._players): self._player_scores.append(0)
+            if current_player_bid.isMet(): self._player_scores[player_index] += (20 + (10*current_player_bid.getMade()))
+            else: self._player_scores[player_index] -= abs(10*(current_player_bid.getMade() - current_player_bid.getGoal()))
 
-    def getDealer(self) -> Player:
-        return self._players[self._dealer_pointer]
+    def getDealerIndex(self) -> int:
+        return self._dealer_index
 
     def _setDealerPointer(self, index:int) -> None:
-        self._dealer_pointer = index
+        self._dealer_index = index
     
-    def _incrementDealerPointer(self) -> None:
-        self._dealer_pointer += 1
+    def _incrementDealerIndex(self) -> None:
+        self._dealer_index += 1
 
-    def _getNextDealer(self) -> Player:
-        if self._dealer_pointer == len(self._players) - 1: self._setDealerPointer(0)
-        else: self._incrementDealerPointer()
-        return self._players[self._players.index(self._dealer_pointer)]
+    def _updateDealerIndex(self) -> None:
+        if self._dealer_index == len(self._players) - 1: self._setDealerPointer(0)
+        else: self._incrementDealerIndex()
 
-    def getCompletedRounds(self) -> list:
-        return self._completed_rounds
+    def getRoundLog(self) -> list:
+        return self._round_log
 
     def getTotalRounds(self) -> int:
         return self._total_rounds
@@ -70,19 +70,16 @@ class Game:
     def _playRounds(self) -> None:
 
         for game_round in range(self._total_rounds):
-
-            round = Round(self._full_deck.shuffleCards(), self._getNextDealer(), self._current_round)
-            round.playRound(self)
-
+            current_state = GameState()
+            current_state.setGameAttributes(self._players, self._full_deck, self._player_scores, self._dealer_index, self._round_log, self._total_rounds, self._current_round)
+            round = Round(self._players, self._full_deck.shuffleCards(), self._dealer_index, self._current_round)
+            round.playRound(current_state)
             self._updatePlayerScores(round)
-            self._completed_rounds.append(round)
+            self._updateDealerIndex()
+            self._round_log.append(round)
             self._current_round += 1
 
-    def playGame(self) -> int:
+    def playGame(self) -> list:
         self._generateDeck()
         self._playRounds()
-        final_scores = self._player_scores.items()
-        winner = (Player(), 0)
-        for player, score in final_scores:
-            if score > winner[1]: winner = (player, score)
-        return self.findPlayer(winner[0])
+        return self._player_scores
