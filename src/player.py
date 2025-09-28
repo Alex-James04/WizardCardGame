@@ -1,6 +1,5 @@
 from card_attributes import Suit, Value
 from card import Card
-from card_set import CardSet
 from game_state import GameState
 
 # Class serving as interface for player strategies - add logic to each function to control what a player does when prompted with various actions during the game
