@@ -1,5 +1,6 @@
 from enum import Enum
 
+# Enum class storing card suits
 class Suit(Enum):
     NULL = "null"
     HEARTS = "hearts"
@@ -7,6 +8,7 @@ class Suit(Enum):
     SPADES = "spades"
     CLUBS = "clubs"
 
+# Enum class storing card values
 class Value(Enum):
     NULL = 0
     JESTER = 1
